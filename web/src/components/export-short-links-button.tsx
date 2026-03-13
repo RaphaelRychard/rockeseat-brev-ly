@@ -1,12 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Download } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { DownloadSimple, CircleNotch } from "@phosphor-icons/react"
 import { exportShortLinks } from "@/http/short-links/export-short-links"
 import { toast } from "sonner"
 
-export function ExportShortLinksButton() {
+interface ExportShortLinksButtonProps {
+  disabled?: boolean
+}
+
+export function ExportShortLinksButton({ disabled = false }: ExportShortLinksButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleExport = async () => {
@@ -22,10 +25,24 @@ export function ExportShortLinksButton() {
     }
   }
 
+  const isDisabled = disabled || isLoading
+
   return (
-    <Button variant="outline" size="sm" disabled={isLoading} onClick={handleExport}>
-      <Download className="w-4 h-4 mr-2" />
-      {isLoading ? "Gerando..." : "Baixar CSV"}
-    </Button>
+    <button
+      onClick={handleExport}
+      disabled={isDisabled}
+      className="flex items-center gap-1.5 px-3 h-8 bg-secondary text-secondary-foreground rounded
+        transition-colors hover:bg-border
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary"
+    >
+      {isLoading ? (
+        <CircleNotch size={16} weight="bold" className="animate-spin" />
+      ) : (
+        <DownloadSimple size={16} weight="regular" />
+      )}
+      <span className="text-xs font-semibold whitespace-nowrap">
+        {isLoading ? "Gerando..." : "Baixar CSV"}
+      </span>
+    </button>
   )
 }

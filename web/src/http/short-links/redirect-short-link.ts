@@ -1,3 +1,9 @@
-export function redirectShortLink(shortLink: string) {
-  window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/${shortLink}`
+import { api } from "../api-client"
+
+interface GetShortLinkResponse {
+  originUrl: string
+}
+
+export async function redirectShortLink(shortLink: string) {
+  return api.get(`/${shortLink}`).json<GetShortLinkResponse>()
 }

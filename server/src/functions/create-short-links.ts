@@ -10,7 +10,7 @@ import { schema } from '@/infra/db/schemas'
 import { ShortLinkAlreadyExists } from './errors/short-link-already-exists'
 
 const createShortLinkInput = z.object({
-  origemUrl: z.string(),
+  originUrl: z.string(),
   shortLink: z
     .string()
     .min(4)
@@ -29,7 +29,7 @@ type CreateShortLinkInput = z.input<typeof createShortLinkInput>
 export async function createShortLink(
   input: CreateShortLinkInput,
 ): Promise<Either<ShortLinkAlreadyExists, { id: string }>> {
-  const { origemUrl, shortLink } = createShortLinkInput.parse(input)
+  const { originUrl, shortLink } = createShortLinkInput.parse(input)
 
   const normalizedShortUrl = shortLink.toLowerCase()
 
@@ -46,7 +46,7 @@ export async function createShortLink(
     .insert(schema.shortLinks)
     .values({
       id: createId(),
-      originUrl: origemUrl,
+      originUrl,
       shortLink: normalizedShortUrl,
       accessCount: 0,
     })

@@ -27,6 +27,7 @@ app.setErrorHandler(fastifyErrorHandler)
 app.register(fastifyCors, {
   origin: true, // permite qualquer origem
   methods: ['*'],
+  allowedHeaders: ['*']
 })
 
 

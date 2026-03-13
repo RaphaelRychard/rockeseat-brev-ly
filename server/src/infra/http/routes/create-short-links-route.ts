@@ -12,7 +12,7 @@ export const createShortLinksRoute: FastifyPluginAsyncZod = async (app) => {
         tags: ['short-links'],
         summary: 'Create a new short link',
         body: z.object({
-          origemUrl: z.url(),
+          originUrl: z.url(),
           shortLink: z
             .string()
             .min(4)
@@ -32,10 +32,10 @@ export const createShortLinksRoute: FastifyPluginAsyncZod = async (app) => {
       },
     },
     async (request, reply) => {
-      const { origemUrl, shortLink } = request.body
+      const { originUrl, shortLink } = request.body
 
       const result = await createShortLink({
-        origemUrl,
+        originUrl,
         shortLink
       })
 

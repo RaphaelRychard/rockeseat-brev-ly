@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
-import RedirectPage from "../Pages/redirect/index"; // ajuste o caminho se necessário
+import RedirectPage from "./pages/redirect"; // ajuste o caminho se necessário
 import "./index.css"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 

@@ -23,7 +23,6 @@ export const redirectShortLinkRoute: FastifyPluginAsyncZod = async (app) => {
     async (request, reply) => {
       const { shortLink } = request.params
 
-
       const result = await redirectShortLink({
         shortLink
       })

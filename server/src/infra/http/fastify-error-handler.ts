@@ -7,6 +7,8 @@ import { UnauthorizedError } from './_errors/unauthorized-error'
 type FastifyErrorHandler = FastifyInstance['errorHandler']
 
 export const fastifyErrorHandler: FastifyErrorHandler = (error, _, reply) => {
+  console.log(error);
+  
   if (hasZodFastifySchemaValidationErrors(error)) {
     const formattedErrors: Record<string, string[]> = {}
 

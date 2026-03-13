@@ -10,13 +10,9 @@ export function ShortLinkSection() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="container mx-auto py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <ShortLinkForm />
-          <ShortLinkList links={data?.shortLinks || []} isLoading={isLoading} />
-        </div>
-      </div>
+    <div className="flex gap-5 items-start">
+      <ShortLinkForm />
+      <ShortLinkList links={data?.shortLinks ?? []} isLoading={isLoading} />
     </div>
   )
 }

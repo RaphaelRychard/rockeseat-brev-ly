@@ -1,22 +1,19 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AlertTriangle, Loader2 } from "lucide-react"
 import { HTTPError } from "ky"
 import { z } from "zod"
+import { CircleNotch, Warning } from "@phosphor-icons/react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createShortLink } from "@/http/short-links/create-short-link"
 import { toast } from "sonner"
 
 const createSchema = z.object({
-  origemUrl: z.string().url("URL inválida"),
+  originUrl: z.string().url("URL inválida"),
   shortLink: z
     .string()
     .min(4, "O link deve ter pelo menos 4 caracteres")
@@ -26,17 +23,19 @@ const createSchema = z.object({
 
 export function ShortLinkForm() {
   const queryClient = useQueryClient()
-  const [origemUrl, setOrigemUrl] = useState("")
+  const [originUrl, setOriginUrl] = useState("")
   const [shortLink, setShortLink] = useState("")
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const isFormFilled = originUrl.trim() !== "" && shortLink.trim() !== ""
 
   const mutation = useMutation({
     mutationFn: createShortLink,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["short-links"] })
       toast.success("Link criado com sucesso!")
-      setOrigemUrl("")
+      setOriginUrl("")
       setShortLink("")
       setErrors({})
       setErrorMessage(null)
@@ -60,14 +59,12 @@ export function ShortLinkForm() {
     setErrors({})
     setErrorMessage(null)
 
-    const parsed = createSchema.safeParse({ origemUrl, shortLink })
+    const parsed = createSchema.safeParse({ originUrl, shortLink })
 
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {}
       parsed.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0].toString()] = err.message
-        }
+        if (err.path[0]) fieldErrors[err.path[0].toString()] = err.message
       })
       setErrors(fieldErrors)
       return
@@ -77,68 +74,78 @@ export function ShortLinkForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <form onSubmit={handleSubmit} className="w-[380px]">
       {errorMessage && (
         <Alert variant="destructive" className="mb-4">
-          <AlertTriangle className="size-4" />
+          <Warning className="size-4" />
           <AlertTitle>Erro ao criar link</AlertTitle>
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-bold text-foreground">Novo link</CardTitle>
-        </CardHeader>
+      <div className="flex flex-col gap-6 p-8 bg-card rounded-lg w-full">
+        <h2 className="text-lg font-bold leading-6 text-foreground">
+          Novo link
+        </h2>
 
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="origemUrl" className="text-xs font-semibold text-muted-foreground">
-              LINK ORIGINAL
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-2 w-full">
+            <Label
+              htmlFor="originUrl"
+              className="text-[10px] font-normal uppercase tracking-wider text-secondary-foreground"
+            >
+              Link Original
             </Label>
             <Input
-              id="origemUrl"
-              name="origemUrl"
+              id="originUrl"
               type="url"
-              placeholder="https://www.exemplo.com"
-              className="h-12"
-              value={origemUrl}
-              onChange={(e) => setOrigemUrl(e.target.value)}
+              placeholder="www.exemplo.com.br"
+              className="h-12 border-input text-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+              value={originUrl}
+              onChange={(e) => setOriginUrl(e.target.value)}
             />
-            {errors.origemUrl && <p className="text-xs text-red-500">{errors.origemUrl}</p>}
+            {errors.originUrl && (
+              <p className="text-xs text-destructive">{errors.originUrl}</p>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="shortLink" className="text-xs font-semibold text-muted-foreground">
-              LINK ENCURTADO
+          {/* Link Encurtado */}
+          <div className="flex flex-col gap-2 w-full">
+            <Label
+              htmlFor="shortLink"
+              className="text-[10px] font-normal uppercase tracking-wider text-secondary-foreground"
+            >
+              Link Encurtado
             </Label>
-            <div className="flex h-12">
-              <span
-                className="inline-flex items-center px-4 
-               bg-muted text-muted-foreground
-               border border-muted rounded-l-lg border-r-0"
-              >
-                brev.ly/
-              </span>
-              <Input
-                id="shortLink"
-                name="shortLink"
-                type="text"
-                placeholder="meu-link"
-                className="rounded-l-none h-full px-4"
-                value={shortLink}
-                onChange={(e) => setShortLink(e.target.value)}
-              />
-            </div>
-
-            {errors.shortLink && <p className="text-xs text-red-500">{errors.shortLink}</p>}
+            <Input
+              id="shortLink"
+              type="text"
+              placeholder="brev.ly/"
+              className="h-12 border-input text-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+              value={shortLink}
+              onChange={(e) => setShortLink(e.target.value)}
+            />
+            {errors.shortLink && (
+              <p className="text-xs text-destructive">{errors.shortLink}</p>
+            )}
           </div>
 
-          <Button type="submit" disabled={mutation.isPending} className="w-full h-12">
-            {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : "Salvar link"}
-          </Button>
-        </CardContent>
-      </Card>
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={!isFormFilled || mutation.isPending}
+            className="w-full h-12 rounded-lg bg-primary text-primary-foreground text-sm font-semibold
+              transition-opacity hover:opacity-90
+              disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {mutation.isPending ? (
+              <CircleNotch size={16} weight="bold" className="animate-spin mx-auto" />
+            ) : (
+              "Salvar link"
+            )}
+          </button>
+        </div>
+      </div>
     </form>
   )
 }
